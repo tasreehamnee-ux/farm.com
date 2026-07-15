@@ -2,8 +2,14 @@ import * as admin from 'firebase-admin';
 
 if (!admin.apps.length) {
   try {
-    // In Vercel, we will set FIREBASE_KEY environment variable with the JSON content of firebase-key.json
-    const serviceAccount = JSON.parse(process.env.FIREBASE_KEY || '{}');
+    const keyString = process.env.FIREBASE_KEY || '{}';
+    const serviceAccount = JSON.parse(keyString);
+    
+    // Fix newline escaping issues from Vercel environment variables
+    if (serviceAccount.private_key) {
+      serviceAccount.private_key = serviceAccount.private_key.replace(/\\n/g, '\n');
+    }
+
     admin.initializeApp({
       credential: admin.credential.cert(serviceAccount)
     });
